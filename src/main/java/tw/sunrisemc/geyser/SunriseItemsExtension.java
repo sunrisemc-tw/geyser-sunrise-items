@@ -101,7 +101,6 @@ public class SunriseItemsExtension implements Extension {
         String bedrockId = d.get("bedrock_identifier").getAsString();
         int cmd = d.get("custom_model_data").getAsInt();
 
-        // bedrock_identifier 同時當作 Bedrock item model identifier（與我方 j2b 轉換器、attachable 命名一致）。
         Identifier bedrockIdentifier = Identifier.of(bedrockId);
 
         CustomItemBedrockOptions.Builder options = CustomItemBedrockOptions.builder();
@@ -112,8 +111,9 @@ public class SunriseItemsExtension implements Extension {
             }
         }
 
-        // legacy custom_model_data predicate：對應 Java <1.21.4 的 CMD 整數（我方 type:"legacy"）。
-        CustomItemDefinition.Builder def = CustomItemDefinition.builder(bedrockIdentifier, bedrockIdentifier)
+        // 必須與 Geyser 原生 LegacyDefinitionReader 完全一致：第二參數是 Java 原版物品模型，
+        // 不是 Bedrock 自訂 ID。傳錯會讓 custom_model_data 的比對掛在錯誤 model 下。
+        CustomItemDefinition.Builder def = CustomItemDefinition.builder(bedrockIdentifier, javaId)
                 .bedrockOptions(options)
                 .predicate(ItemRangeDispatchPredicate.legacyCustomModelData(cmd));
 
